@@ -101,11 +101,18 @@ exports.getDetailPromotionVoucher = catchAsync(async (req, res, next) => {
                     message: "Mã voucher này đã hết hạn sử dụng !"
                 });
             } else {
-                return res.status(200).json({ 
-                    status: "Success", 
-                    message: "Áp dụng voucher thành công !", 
-                    voucher: voucher 
-                });
+                if(voucher.soluong == 0) {
+                    return res.status(400).json({ 
+                        status: "Fail", 
+                        message: "Số lượng voucher này đã hết !" 
+                    });
+                } else {
+                    return res.status(200).json({ 
+                        status: "Success", 
+                        message: "Áp dụng voucher thành công !", 
+                        voucher: voucher 
+                    });
+                }
             }
         }
     } catch (error) {
@@ -130,6 +137,7 @@ exports.postPromotionCODE = catchAsync(async (req, res, next) => {
             hinh: req.body.img,
             dieukien: req.body.dieukien,
             giagiam: req.body.giagiam,
+            soluong: req.body.soluong,
             ngaybd: req.body.ngaybd,
             ngaykt: req.body.ngaykt,
             //trangthai: req.body.trangthai
@@ -220,11 +228,11 @@ exports.putEditPromotionCODE = catchAsync(async (req, res, next) => {
             hinh: req.body.img,
             dieukien: req.body.dieukien,
             giagiam: req.body.giagiam,
+            soluong: req.body.soluong,
             ngaybd: req.body.ngaybd,
-            ngaykt: req.body.ngaykt,
-            trangthai: req.body.trangthai
+            ngaykt: req.body.ngaykt
         };
-        if(!data.makm || !data.tenkm || !data.voucher || !data.ghichu || !data.tenhinh || !data.hinh || !data.giagiam || !data.ngaybd) {
+        if(data.makm == undefined || !data.tenkm || !data.voucher || !data.ghichu || !data.tenhinh || !data.hinh || !data.giagiam || !data.ngaybd) {
             return res.status(400).json({
                 status: "Fail",
                 message: "Thiếu thông tin voucher. Vui lòng kiểm tra lại thông tin !!!"
@@ -264,7 +272,46 @@ exports.putEditPromotionCODE = catchAsync(async (req, res, next) => {
 // PUT: Update 1 promotion is the products
 exports.putEditPromotionProduct = catchAsync(async (req, res, next) => {
     try {
-        
+        let makm = req.body.makm;
+        let tenkm = req.body.tenkm;
+        let ghichu = req.body.ghichu;
+        let ngaykt = req.body.ngaykt;
+        let deleteMact = req.body.deleteMact;
+
+        if(makm == undefined || !tenkm || !ghichu || !ngaykt) {
+            return res.status(400).json({
+                status: "Fail",
+                message: "Thiếu thông tin chương trình khuyến mãi. Vui lòng kiểm tra lại thông tin !!!"
+            });
+        };
+        const promotionExist = await modelDiscount.get_By_discountId(makm);
+        if(promotionExist == -1) {
+            return res.status(400).json({ 
+                status: "Fail", 
+                message: "Không tìm thấy chương trình khuyến mãi này, vui lòng kiểm tra lại thông tin !!!" 
+            });
+        } else {
+            if(deleteMact.length == 0) {
+                const query = await modelDiscount.update_PromotionProduct(makm, tenkm, ghichu, ngaykt);
+                if(query == 1) {
+                    return res.status(200).json({ 
+                        status: "Success", 
+                        message: "Cập nhật thông tin chương trình khuyến mãi theo sản phẩm thành công !" 
+                    });
+                };
+            } else {
+                for (let i = 0; i < deleteMact.length; i++) {
+                    const query_delete = await modelDiscount.delete_DetailProduct(deleteMact[i]);
+                };
+                const query = await modelDiscount.update_PromotionProduct(makm, tenkm, ghichu, ngaykt);
+                if(query == 1) {
+                    return res.status(200).json({ 
+                        status: "Success", 
+                        message: "Cập nhật thông tin chương trình khuyến mãi theo sản phẩm thành công !" 
+                    });
+                };
+            }
+        }
     } catch (error) {
         return res.status(400).json({
             status: "Fail", 

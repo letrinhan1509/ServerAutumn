@@ -106,7 +106,7 @@ exports.update = (producerId, name, origin) => {
     // Xoá nhà sản xuất:
 exports.delete = (producerId) => {
     return new Promise( (hamOK, hamLoi) => {
-        let sql_type = `SELECT sanpham.code, sanpham.tensp, nhasx.tennsx
+        let sql_type = `SELECT sanpham.masp, sanpham.tensp, nhasx.tennsx
         FROM sanpham JOIN nhasx
         ON sanpham.mansx = nhasx.mansx
         WHERE sanpham.mansx='${producerId}'`;
@@ -114,7 +114,7 @@ exports.delete = (producerId) => {
             if(error)
                 hamLoi(error);
             else{
-                if(result.length <= 0){
+                if(result.length == 0){
                     console.log("Xoá được!");
                     let sql = `DELETE FROM nhasx WHERE mansx='${producerId}'`;
                     db.query(sql, (err, result) => {

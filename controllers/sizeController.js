@@ -85,12 +85,16 @@ exports.postCheckSize = catchAsync(async (req, res, next) => {
         let gioitinh = req.body.gioitinh;
         let cannang = req.body.cannang;
         let chieucao = req.body.chieucao;
+        console.log(req.body);
         if(!gioitinh || cannang == undefined || chieucao == undefined) {
             return res.status(400).json({ 
                 status: "Fail", 
                 message: "Thiếu số cân nặng hoặc chiều cao, vui lòng kiểm tra lại !"
             });
         };
+        if(gioitinh === 'Nữ') {
+            gioitinh = "Nữ";
+        }
         const size = await modelSize.check_Size(gioitinh);
         size.some(element => {
             if(chieucao <= element.chieucaoden && cannang <= element.cannangden) {
@@ -110,6 +114,7 @@ exports.postCheckSize = catchAsync(async (req, res, next) => {
             }
         });
     } catch (error) {
+        console.log(error);
         return res.status(400).json({ 
             status: "Fail", 
             message: "Something went wrong!", 

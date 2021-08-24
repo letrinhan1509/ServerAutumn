@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const catchAsync = require('../utils/catchAsync');
 const authController = require('../controllers/authController');
 const modelUser = require('../models/model_user');
+const { sendmail } = require('../mail');
+
 
 const signToken = (id, email) => {
 	return jwt.sign({ _id: id, email: email }, process.env.JWT_SECRET, {
@@ -99,6 +101,7 @@ exports.getLogouts = catchAsync(async (res, req, next) => {
 exports.postUser = catchAsync(async (req, res, next) => {
     try {
         let hinh = "https://firebasestorage.googleapis.com/v0/b/fashionshop-c6610.appspot.com/o/User_Img%2Fuser.png?alt=media&token=6ec247df-90ab-4cc9-b671-7261ef37215f&fbclid=IwAR2WTfoELEQhDxDpM3qKj0XcNtFNZyR1_5AYxYWNWpzzoIsuOWOIOqH9K9k";
+        let nhaplaimk = req.body.nhaplaimk;
         const data = {
             tenkh: req.body.tenkh,
             email: req.body.email,
@@ -107,7 +110,7 @@ exports.postUser = catchAsync(async (req, res, next) => {
             sodienthoai: req.body.sodienthoai,
             diachi: req.body.diachi,   
         };
-        if(!nhaplaimk || !data.tenkh || !data.email || !data.matkhau || !data.sodienthoai || !data.diachi) {
+        if(!data.tenkh || !data.email || !data.matkhau || !data.sodienthoai || !data.diachi) {
             return res.status(400).json({
                 status: "Fail",
                 message: "Thiếu thông tin. Vui lòng kiểm tra lại thông tin !"
@@ -133,6 +136,7 @@ exports.postUser = catchAsync(async (req, res, next) => {
                 var mk_mahoa = bcrypt.hashSync(data.matkhau, salt);   // Mã hoá password
                 data.matkhau = mk_mahoa;
                 const query_Create = await modelUser.insert_User(data);
+                await sendmail(data.email, data.tenkh, "register");
                 return res.status(200).json({ 
                     status: "Success", 
                     message: query_Create
@@ -151,6 +155,7 @@ exports.postUser = catchAsync(async (req, res, next) => {
             });
         }
     } catch (error) {
+        console.log(error);
         return res.status(400).json({
             status: "Fail", 
             message: "Something went wrong",

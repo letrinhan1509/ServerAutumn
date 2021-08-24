@@ -42,7 +42,7 @@ exports.check_Code = async (code) => {
 exports.get_By_Id = async (productId) => {
     return new Promise( (hamOK, hamLoi) => {
         let sql = `SELECT SP.masp, SP.tensp, SP.gia, SP.chitiet, SP.tenhinh, SP.hinh, SP.tenhinhct, SP.hinhchitiet, SP.mota, 
-        DATE_FORMAT(SP.ngaytao, '%e-%c-%Y') as ngaytao, SP.trangthai, SP.mansx, nhasx.tennsx, SP.maloai, loaisp.tenloai, SP.madm, danhmuc.tendm
+        ngaytao, SP.trangthai, SP.mansx, nhasx.tennsx, SP.maloai, loaisp.tenloai, SP.madm, danhmuc.tendm
         FROM (((sanpham AS SP JOIN danhmuc ON SP.madm = danhmuc.madm) JOIN loaisp ON SP.maloai = loaisp.maloai)
         JOIN nhasx ON SP.mansx = nhasx.mansx) WHERE SP.masp='${productId}'`;
         db.query(sql, (err, result) => {
@@ -174,7 +174,7 @@ exports.create_product = (data) => {
     });
 }
     // Sửa sản phẩm:
-exports.update_product = (masp, tensp, gia, chitiet, tenhinh, hinh, mota, trangthai, mansx, maloai, madm) => {
+exports.update_product = (masp, tensp, gia, chitiet, tenhinh, hinh, hinhchitiet, mota, trangthai, mansx, maloai, madm) => {
     return new Promise( (hamOK, hamLoi) => {
         let sql = `UPDATE sanpham SET   
         tensp='${tensp}', 
@@ -182,6 +182,7 @@ exports.update_product = (masp, tensp, gia, chitiet, tenhinh, hinh, mota, trangt
         chitiet='${chitiet}', 
         tenhinh='${tenhinh}', 
         hinh='${hinh}',
+        hinhchitiet='${hinhchitiet}',
         mota='${mota}',
         trangthai='${trangthai}',
         mansx='${mansx}',
@@ -192,7 +193,7 @@ exports.update_product = (masp, tensp, gia, chitiet, tenhinh, hinh, mota, trangt
             if(err){
                 hamLoi(err);
             }else{
-                hamOK(result);
+                hamOK(1);
             }
         });
     });
@@ -204,7 +205,6 @@ exports.update_amount = (masp, chitiet) => {
         db.query(sql, (err, result) => {
             if(err){ hamLoi(err); } 
             else { 
-                console.log("Cập nhật chi tiết số lượng thành công !");
                 hamOK("Cập nhật chi tiết số lượng thành công !"); 
             }
         })

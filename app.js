@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 
   // Import routes:
+const homePage = require('./routes/homePage');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const adminRouter = require('./routes/admin');
@@ -49,9 +50,10 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!'
 });
-app.use(limiter);
+//app.use(limiter);
 
 
+app.use('/', homePage);
 app.use('/api', indexRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/binh-luan', commentRouter);

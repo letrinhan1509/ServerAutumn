@@ -20,9 +20,9 @@ const signToken = (id) => {
             // API GET:
 router
     .route("/")
-    .get(adminController.getListAdmins) // Danh sách tất cả admins
-    .post(adminController.signup)   // Tạo tài khoản admin
-    .put(adminController.putEditProfile);   // Cập nhật thông tin tài khoản admin
+    .get(authController.isLoggedIn, adminController.getListAdmins) // Danh sách tất cả admins
+    .post(authController.isLoggedIn, adminController.signup)   // Tạo tài khoản admin
+    .put(authController.isLoggedIn, adminController.putEditProfile);   // Cập nhật thông tin tài khoản admin
 //router.get('/', authController.restrictTo, adminController.getListAdmins)
 
 router

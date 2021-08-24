@@ -8,7 +8,7 @@ exports.list_Comments = async () => {
         var data = [];
         let dataListCmt = {};
         let sql = `SELECT binhluan.mabl, binhluan.masp, sanpham.tensp, sanpham.hinh as hinhsp, binhluan.makh, khachhang.tenkh, 
-        khachhang.hinh, binhluan.noidung, TIME(binhluan.ngaybl) as giobl, DATE_FORMAT(binhluan.ngaybl, '%e-%c-%Y') as ngaybl, binhluan.trangthai 
+        khachhang.hinh, binhluan.noidung, binhluan.ngaybl, binhluan.trangthai 
         FROM ((binhluan JOIN khachhang ON binhluan.makh = khachhang.makh) JOIN sanpham ON binhluan.masp = sanpham.masp)`;
         db.query(sql, (error, result) => {
             if(error) { hamLoi(error); } 
@@ -21,15 +21,14 @@ exports.get_by_Id = async (cmtId) => {
     return new Promise( (hamOK, hamLoi) => {
         const data = [];
         let sql = `SELECT binhluan.mabl, binhluan.masp, sanpham.tensp, binhluan.makh, khachhang.tenkh, khachhang.hinh, binhluan.noidung,
-        TIME(binhluan.ngaybl) as giobl, TIME(binhluan.ngaybl) as ngaybl, binhluan.trangthai FROM ((binhluan JOIN khachhang ON binhluan.makh = khachhang.makh)
+        binhluan.ngaybl, binhluan.trangthai FROM ((binhluan JOIN khachhang ON binhluan.makh = khachhang.makh)
         JOIN sanpham ON binhluan.masp = sanpham.masp) WHERE binhluan.mabl = '${cmtId}'`;
         db.query(sql, (error, result) => {
             if(error) { hamLoi(error); }
             else {
                 if(result.length > 0){
                     result.forEach(element => {
-                        let sql_detail = `SELECT chitietbl.mact, chitietbl.ten, chitietbl.noidung, DATE_FORMAT(chitietbl.ngaybl, '%e-%c-%Y') as ngaybl, 
-                        DATE_FORMAT(chitietbl.ngaybl, '%e-%c-%Y') as giobl, chitietbl.manv, admin.hinh as hinhnv, chitietbl.mabl
+                        let sql_detail = `SELECT chitietbl.mact, chitietbl.ten, chitietbl.noidung, chitietbl.ngaybl, chitietbl.manv, admin.hinh as hinhnv, chitietbl.mabl
                         FROM ((chitietbl JOIN binhluan ON chitietbl.mabl = binhluan.mabl) JOIN admin ON chitietbl.manv = admin.manv) 
                         WHERE chitietbl.mabl = '${element.mabl}'`;
                         db.query(sql_detail, (err, result1) => {
@@ -55,8 +54,7 @@ exports.get_by_productId = async (productId) => {
     return new Promise( async (hamOK, hamLoi) => {
         const data = [];
         let sql = `SELECT binhluan.mabl, binhluan.masp, sanpham.tensp, binhluan.makh, khachhang.tenkh, khachhang.hinh, binhluan.noidung,
-        TIME(binhluan.ngaybl) as giobl, DATE_FORMAT(binhluan.ngaybl, '%e-%c-%Y') as ngaybl, binhluan.trangthai 
-        FROM ((binhluan JOIN khachhang ON binhluan.makh = khachhang.makh) JOIN sanpham ON binhluan.masp = sanpham.masp) 
+        ngaybl, binhluan.trangthai FROM ((binhluan JOIN khachhang ON binhluan.makh = khachhang.makh) JOIN sanpham ON binhluan.masp = sanpham.masp) 
         WHERE binhluan.masp = '${productId}' AND binhluan.trangthai = 1`;  
         db.query(sql, (err, result) => {
             if(err) {
@@ -76,8 +74,8 @@ exports.get_by_productId = async (productId) => {
 exports.get_by_userId = async (userId) => {
     return new Promise( (hamOK, hamLoi) => {
         let sql = `SELECT binhluan.mabl, binhluan.masp, sanpham.tensp, binhluan.makh, khachhang.tenkh, khachhang.hinh, binhluan.noidung,
-        TIME(binhluan.ngaybl) as giobl, DATE_FORMAT(binhluan.ngaybl, '%e-%c-%Y') as ngaybl FROM ((binhluan JOIN khachhang ON binhluan.makh = khachhang.makh)
-        JOIN sanpham ON binhluan.masp = sanpham.masp) WHERE binhluan.makh = '${userId}' AND binhluan.trangthai = 1`;
+        ngaybl FROM ((binhluan JOIN khachhang ON binhluan.makh = khachhang.makh) JOIN sanpham ON binhluan.masp = sanpham.masp) 
+        WHERE binhluan.makh = '${userId}' AND binhluan.trangthai = 1`;
         db.query(sql, (err, result) => {
             if(err){
                 hamLoi(err);
@@ -95,8 +93,9 @@ exports.get_by_userId = async (userId) => {
     // Danh sách chi tiết comment:
 exports.get_detailComment = async (commentId) => {
     return new Promise( (hamOK, hamLoi) => {
-        let sql = `SELECT chitietbl.mact, chitietbl.ten, chitietbl.noidung, TIME(chitietbl.ngaybl) as giobl, DATE_FORMAT(chitietbl.ngaybl, '%e-%c-%Y') as ngaybl, chitietbl.mabl
-        FROM (chitietbl JOIN binhluan ON chitietbl.mabl = binhluan.mabl) WHERE chitietbl.mabl = '${commentId}' AND binhluan.trangthai=1`;
+        let sql = `SELECT chitietbl.mact, chitietbl.ten, admin.hinh, chitietbl.noidung, chitietbl.ngaybl, chitietbl.mabl, chitietbl.manv
+        FROM ((chitietbl JOIN binhluan ON chitietbl.mabl = binhluan.mabl) JOIN admin ON chitietbl.manv = admin.manv) 
+        WHERE chitietbl.mabl = '${commentId}' AND binhluan.trangthai=1`;
         db.query(sql, (err, result) => {
             if(err){
                 hamLoi(err);
@@ -137,8 +136,7 @@ exports.create_Comment = (data) => {
             if(err)
                 reject(err);
             else {
-                console.log('Insert successfully')
-                resolve("Thêm bình luận thành công !");
+                resolve(1);
             };
         });
     });

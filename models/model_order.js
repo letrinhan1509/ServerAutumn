@@ -9,7 +9,7 @@ var dataName = [];
 exports.list_Orders = async () => {
     return new Promise( (hamOK, hamLoi) => {
         let sql = `SELECT DH.madonhang, DH.code_GHN, DH.makh, DH.tenkh, DH.email, DH.sodienthoai, DH.diachi, DH.tienship, DH.tongtien, DH.ghichu, DH.makm,
-        DH.hinhthuc, DH.vanchuyen, DATE_FORMAT(DH.ngaydat, '%e-%c-%Y') as ngaydat, DATE_FORMAT(DH.ngaygiao, '%e-%c-%Y') as ngaygiao, 
+        DH.hinhthuc, DH.vanchuyen, ngaydat, ngaygiao, 
         DH.trangthai, TT.tentt as tentt FROM (donhang AS DH JOIN trangthai AS TT ON DH.trangthai = TT.trangthai)`;
         db.query(sql, (err, result) => {
             if(err){
@@ -27,8 +27,8 @@ exports.get_By_Id = async (orderId) => {
     return new Promise( (hamOK, hamLoi) => {
         //const data = [];
         let sql = `SELECT DH.madonhang, DH.code_GHN, DH.makh, DH.tenkh, DH.email, DH.sodienthoai, DH.diachi, DH.tienship, DH.tongtien, DH.ghichu, 
-        DH.makm, DH.hinhthuc, DH.vanchuyen, DH.chitiet, DH.ngaydat, DH.ngaygiao, DH.trangthai, TT.tentt as tentt 
-        FROM (donhang AS DH JOIN trangthai AS TT ON DH.trangthai = TT.trangthai) WHERE DH.madonhang = '${orderId}'`;
+        DH.makm, DH.hinhthuc, DH.vanchuyen, DH.chitiet, ngaydat, ngaygiao, 
+        DH.trangthai, TT.tentt as tentt FROM (donhang AS DH JOIN trangthai AS TT ON DH.trangthai = TT.trangthai) WHERE DH.madonhang = '${orderId}'`;
         db.query(sql, (err, result) => {
             //console.log(result[0].madonhang);
             if(err){
@@ -132,7 +132,7 @@ exports.statistical = async () => {
 exports.statisticalMonth = async () => {
     return new Promise( (hamOK, hamLoi) => {
         let sql = `SELECT MONTH (ngaydat) as doanhthuthang, SUM(tongtien) as tongdoanhthu, COUNT(ngaydat) as tongdonhang 
-        FROM donhang GROUP BY MONTH (ngaydat) ORDER BY doanhthuthang DESC`;
+        FROM donhang GROUP BY MONTH (ngaydat) ORDER BY doanhthuthang DESC LIMIT 7`;
         db.query(sql, (err, result) => {
             if(err){
                 hamLoi(err);

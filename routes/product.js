@@ -35,7 +35,6 @@ router.put('/cap-nhat-trang-thai', productController.putEditStatus);// Cáº­p nhá
 //router.post('/them-san-pham', productController.postProduct);
 //router.delete('/xoa/:id', productController.deleteProduct);
 
-router.put('/test-so-luong', productController.putAmount);
 
 
 function xoa_dau(str) {

@@ -109,12 +109,14 @@ exports.postComment = catchAsync(async (req, res, next) => {
             });
         } else {
             let query = await modelComment.create_Comment(data);
-            const listComments = await modelComment.list_Comments();
-            return res.status(200).json({ 
-                status: "Success", 
-                message: query,
-                listComments: listComments 
-            });
+            if(query == 1){
+                const listComments = await modelComment.get_by_productId(data.masp);
+                return res.status(200).json({ 
+                    status: "Success", 
+                    message: "Thêm bình luận thành công !",
+                    listComments: listComments 
+                });
+            }
         };
     } catch (error) {
         return res.status(400).json({ 
@@ -173,9 +175,10 @@ exports.putEditCommnet = catchAsync(async (req, res, next) => {
         if(comment == -1) {
             return res.status(400).json({ status: "Fail", message: "Mã bình luận " + `${mabl}` + " này không tồn tại, vui lòng kiểm tra lại !" });
         } else {
-            if(comment.makh === makh) {
+            console.log(comment);
+            if(comment[0].makh === makh) {
                 let query = await modelComment.update_Comment(mabl, noidung);
-                const listComments = await modelComment.list_Comments();
+                const listComments = await modelComment.get_by_productId(comment[0].masp);
                 return res.status(200).json({ status: "Success", message: query, listComments: listComments });
             } else {
                 return res.status(400).json({ status: "Fail", message: "Bạn không có quyền sửa bình luận này !" });
@@ -278,9 +281,9 @@ exports.deleteComment = catchAsync(async (req, res, next) => {
         if(cmtExist == -1) {
             return res.status(400).json({ status: "Fail", message: "Không tìm thấy bình luận này, vui lòng kiểm tra lại !" });
         } else {
-            if(cmtExist.makh === makh) {
+            if(cmtExist[0].makh === makh) {
                 let query = await modelComment.delete_Comment(mabl);
-                const listComments = await modelComment.list_Comments();
+                const listComments = await modelComment.get_by_productId(cmtExist[0].masp);
                 return res.status(200).json({ status: "Success", message: query, listComments: listComments });
             } else {
                 return res.status(400).json({ status: "Fail", message: "Bạn không có quyền xoá bình luận này !" });
